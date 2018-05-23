@@ -1,0 +1,39 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'application'
+mainClassName = "com.redhat.xml.ls.ServerStarter"
+apply plugin: 'maven'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+
+group = 'com.redhat.xml.ls'
+version = '1.0-SNAPSHOT'
+
+description = """xml-ls"""
+
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
+
+repositories {
+     maven { url "http://repo.maven.apache.org/maven2" }
+}
+
+dependencies {
+    compile group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version:'0.3.0'
+    compile group: 'xerces', name: 'xercesImpl', version:'2.11.0'
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version:'5.0.1'
+    testCompile group: 'org.apiguardian', name: 'apiguardian-api', version:'1.0.0'
+}
+
