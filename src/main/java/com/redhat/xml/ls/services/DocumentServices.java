@@ -99,7 +99,7 @@ public class DocumentServices implements TextDocumentService {
      * 
      * - Watch for empty document
      * 
-     * - Test 2
+     * - Test 3
      */
 
     return null;
