@@ -98,6 +98,8 @@ public class DocumentServices implements TextDocumentService {
      * - consider tag name, attributes and value, caret symbol, element content
      * 
      * - Watch for empty document
+     * 
+     * - Test
      */
 
     return null;
