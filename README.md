@@ -1,26 +1,13 @@
 [![Build Status](https://travis-ci.org/redhat-developer/yaml-language-server.svg?branch=master)](https://travis-ci.org/redhat-developer/yaml-language-server) [![version](https://img.shields.io/npm/v/yaml-language-server.svg)](https://www.npmjs.com/package/yaml-language-server) [![Coverage Status](https://coveralls.io/repos/github/redhat-developer/yaml-language-server/badge.svg?branch=master)](https://coveralls.io/github/redhat-developer/yaml-language-server?branch=master)
 
-# YAML Language Server
+# XML Language Server
 
 ## Features
 
-1. YAML validation:
-    * Detects whether the entire file is valid yaml
-2. Validation:
-    * Detects errors such as:
-        * Node is not found
-        * Node has an invalid key node type
-        * Node has an invalid type
-        * Node is not a valid child node
-    * Detects warnings such as:
-        * Node is an additional property of parent
-3. Auto completion:
-    * Auto completes on all commands
-    * Scalar nodes autocomplete to schema's defaults if they exist
-4. Hover support:
-    * Hovering over a node shows description *if available*
-5. Document outlining:
-    * Shows a complete document outline of all nodes in the document
+1. Feature Name:
+    * Description
+2. Feature Name:
+    * Description
 
 ## Language Server Settings
 
