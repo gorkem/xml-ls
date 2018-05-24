@@ -47,7 +47,6 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
     this.root = new XMLNode(XMLNode.DOCUMENT_NODE);
     this.root.start = new Position(this.locator.getLineNumber(), this.locator.getColumnNumber());
     pushCurrent(this.root);
-
   }
 
   @Override

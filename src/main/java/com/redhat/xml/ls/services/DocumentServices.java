@@ -5,6 +5,7 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 import com.redhat.xml.ls.XMLLanguageServer;
@@ -33,6 +34,8 @@ import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SymbolInformation;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
@@ -44,7 +47,7 @@ import org.xml.sax.InputSource;
 public class DocumentServices implements TextDocumentService {
 
   private XMLLanguageServer server;
-  private HashMap<String, Document> cache = new HashMap<>();
+  private HashMap<String, TextDocumentItem> cache = new HashMap<>();
 
   private final static Logger LOG = Logger.getLogger(DocumentServices.class.getName());
 
@@ -54,7 +57,7 @@ public class DocumentServices implements TextDocumentService {
 
   public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(
       TextDocumentPositionParams position) {
-    Document document = cache.get(position.getTextDocument().getUri());
+    TextDocumentItem document = cache.get(position.getTextDocument().getUri());
     return null;
   }
 
@@ -62,6 +65,7 @@ public class DocumentServices implements TextDocumentService {
     return null;
   }
 
+  // Investigate whether necessary
   public CompletableFuture<Hover> hover(TextDocumentPositionParams position) {
     return null;
   }
@@ -75,10 +79,27 @@ public class DocumentServices implements TextDocumentService {
   }
 
   public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
+
     return null;
   }
 
+  // Shows all other same named of highlighted
   public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(TextDocumentPositionParams position) {
+
+    TextDocumentItem textDocument = cache.get(position.getTextDocument().getUri());
+    XMLNode currentNode = parseDocument(position.getUri(), textDocument.getText()); // WHERE DOES ROOT COME FROM
+
+    int character = position.getPosition().getCharacter();
+    int line = position.getPosition().getLine();
+
+    /*
+     * - Get closest node to position. At position collect string info
+     * 
+     * - consider tag name, attributes and value, caret symbol, element content
+     * 
+     * - Watch for empty document
+     */
+
     return null;
   }
 
@@ -90,6 +111,7 @@ public class DocumentServices implements TextDocumentService {
     return null;
   }
 
+  // See where closing brackets are
   public CompletableFuture<List<? extends CodeLens>> codeLens(CodeLensParams params) {
     return null;
   }
@@ -103,6 +125,7 @@ public class DocumentServices implements TextDocumentService {
   }
 
   public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
+
     return null;
   }
 
@@ -117,6 +140,7 @@ public class DocumentServices implements TextDocumentService {
   public void didOpen(DidOpenTextDocumentParams params) {
     LOG.info("Document opened");
     parseDocument(params.getTextDocument().getUri(), params.getTextDocument().getText());
+    cache.put(params.getTextDocument().getUri(), params.getTextDocument());
   }
 
   public void didChange(DidChangeTextDocumentParams params) {
@@ -133,11 +157,22 @@ public class DocumentServices implements TextDocumentService {
     parseDocument(params.getTextDocument().getUri(), params.getText());
   }
 
-  private void parseDocument(String uri, String content) {
-    CompletableFuture.runAsync(() -> {
+  private XMLNode parseDocument(String uri, String content) {
+    CompletableFuture<XMLNode> z = CompletableFuture.supplyAsync(() -> {
       XMLParser parser = new XMLParser(this.server.getClientServices());
       parser.parse(uri, content);
+      return parser.getRoot();
     });
+
+    try {
+      return z.get();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      e.printStackTrace();
+    }
+
+    return null;
   }
 
 }

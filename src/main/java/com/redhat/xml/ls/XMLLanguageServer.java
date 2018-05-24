@@ -19,6 +19,8 @@ import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
+//DELETE THIS COMMENT
+
 public class XMLLanguageServer implements LanguageServer, LanguageClientAware {
 
   private TextDocumentService documentService;
