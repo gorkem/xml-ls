@@ -7,6 +7,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
+import com.redhat.xml.ls.parser.XMLNodes.XMLAttributeNode;
+import com.redhat.xml.ls.parser.XMLNodes.XMLDocumentNode;
+import com.redhat.xml.ls.parser.XMLNodes.XMLElementNode;
+import com.redhat.xml.ls.parser.XMLNodes.XMLDeclarationNode;
+import com.redhat.xml.ls.parser.XMLNodes.XMLNode;
 import com.redhat.xml.ls.services.ClientServices;
 import com.redhat.xml.ls.util.DiagnosticsHelper;
 
@@ -44,13 +49,14 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
   public void startDocument(XMLLocator locator, String encoding, NamespaceContext namespaceContext, Augmentations augs)
       throws XNIException {
     this.locator = locator;
-    this.root = new XMLNode(XMLNode.DOCUMENT_NODE);
+    this.root = new XMLDocumentNode(XMLNode.DOCUMENT_NODE);
     this.root.start = new Position(this.locator.getLineNumber(), this.locator.getColumnNumber());
     pushCurrent(this.root);
   }
 
   @Override
   public void xmlDecl(String version, String encoding, String standalone, Augmentations augs) throws XNIException {
+    
     XMLNode decl = new XMLNode(XMLNode.XML_DECL);
     decl.start = new Position(this.locator.getLineNumber(), this.locator.getColumnNumber());
     addToCurrent(decl);
@@ -60,13 +66,50 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
 
   @Override
   public void startElement(QName element, XMLAttributes attributes, Augmentations augs) throws XNIException {
-    XMLNode e = new XMLNode(XMLNode.ELEMENT_NODE);
+    XMLNode e = new XMLElementNode(XMLNode.ELEMENT_NODE);
     e.start = new Position(this.locator.getLineNumber(), this.locator.getColumnNumber());
     e.name = element.localpart;
+
     addToCurrent(e);
     pushCurrent(e);
+
+    XMLNode[] attrList = new XMLNode[attributes.getLength()];
+    for (int attrIndex = 0; attrIndex < attributes.getLength(); attrIndex++) {
+      String attrName = attributes.getQName(attrIndex);
+      String attrValue = attributes.getValue(attrIndex);
+
+      XMLAttributeNode attrNode = new XMLAttributeNode(XMLNode.ATTRIBUTE_NODE, attrValue);
+      attrNode.name = attrName;
+      attrNode.start = new Position(this.locator.getLineNumber(), this.locator.getColumnNumber());
+      addToCurrent(attrNode);
+      // TODO: we need to determine the end position
+
+      attrList[attrIndex] = attrNode;
+    }
+
+    this.current.children = attrList;
+    System.out.println("hi");
   }
 
+  /*
+    To be implemented after DTD's are considered
+  */
+  // @Override
+  // public void attributeDecl(String elementName, String attributeName, String type, String[] enumeration,
+  //     String defaultType, XMLString defaultValue, XMLString nonNormalizedDefaultValue, Augmentations augs)
+  //     throws XNIException {
+
+    
+  //   XMLAttributeNode att = new XMLAttributeNode(XMLNode.ATTRIBUTE_NODE, new String(defaultValue.toString()));
+  //   att.parent = this.current;
+  //   att.name = new String(attributeName);
+  //   att.start = new Position(this.locator.getLineNumber(), this.locator.getColumnNumber());
+  //   addToCurrent(att);
+  //   // Do not push to current as xmldecl can not have child
+  //   // TODO: we need to determine the end position
+  // }
+
+   
   @Override
   public void endElement(QName element, Augmentations augs) throws XNIException {
     this.current.end = new Position(this.locator.getLineNumber(), this.locator.getColumnNumber());
@@ -96,6 +139,7 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
     }
   }
 
+  //Adds e as child to current Node
   private void addToCurrent(XMLNode e) {
     if (this.current.children == null) {
       this.current.children = new XMLNode[1];

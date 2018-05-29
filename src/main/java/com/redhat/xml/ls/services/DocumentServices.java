@@ -1,7 +1,5 @@
 package com.redhat.xml.ls.services;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -9,10 +7,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 import com.redhat.xml.ls.XMLLanguageServer;
-import com.redhat.xml.ls.parser.XMLNode;
+import com.redhat.xml.ls.parser.XMLNodes.XMLNode;
 import com.redhat.xml.ls.parser.XMLParser;
 
-import org.apache.xerces.xni.XNIException;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CodeLensParams;
@@ -30,19 +27,17 @@ import org.eclipse.lsp4j.DocumentRangeFormattingParams;
 import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SymbolInformation;
-import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 
 public class DocumentServices implements TextDocumentService {
 
@@ -87,10 +82,12 @@ public class DocumentServices implements TextDocumentService {
   public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(TextDocumentPositionParams position) {
 
     TextDocumentItem textDocument = cache.get(position.getTextDocument().getUri());
-    XMLNode currentNode = parseDocument(position.getUri(), textDocument.getText()); // WHERE DOES ROOT COME FROM
+    XMLNode currentNode = parseDocument(position.getUri(), textDocument.getText());
 
-    int character = position.getPosition().getCharacter();
-    int line = position.getPosition().getLine();
+    //XMLNode closestNode = Util.FindClosestNode(currentNode, position);
+
+    Position p = new Position();
+  
 
     /*
      * - Get closest node to position. At position collect string info
@@ -146,7 +143,7 @@ public class DocumentServices implements TextDocumentService {
   }
 
   public void didChange(DidChangeTextDocumentParams params) {
-
+    
   }
 
   public void didClose(DidCloseTextDocumentParams params) {

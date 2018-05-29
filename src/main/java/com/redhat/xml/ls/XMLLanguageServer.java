@@ -36,6 +36,8 @@ public class XMLLanguageServer implements LanguageServer, LanguageClientAware {
     syncOptions.setSave(new SaveOptions(true));
     syncOptions.setOpenClose(true);
     $.setTextDocumentSync(syncOptions);
+    $.setDocumentHighlightProvider(true);
+
     return CompletableFuture.completedFuture(new InitializeResult($));
   }
 

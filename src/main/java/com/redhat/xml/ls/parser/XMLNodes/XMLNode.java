@@ -1,5 +1,6 @@
-package com.redhat.xml.ls.parser;
+package com.redhat.xml.ls.parser.XMLNodes;
 
+import com.redhat.xml.ls.parser.Position;
 /**
  * XMLNode
  */
@@ -59,12 +60,19 @@ public class XMLNode {
   public final short nodeType;
   public Position start;
   public Position end;
-  public XMLNode[] children;
   public XMLNode parent;
   public String name;
+  public XMLNode[] children;
+  public String value;
 
   public XMLNode(short nodeType) {
     this.nodeType = nodeType;
   }
 
+  
+
 }
+
+
+
+
