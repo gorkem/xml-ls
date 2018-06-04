@@ -1,6 +1,6 @@
 package com.redhat.xml.ls.parser.XMLNodes;
 
-import com.redhat.xml.ls.parser.XMLNode;
+import com.redhat.xml.ls.parser.XMLNodes.XMLNode;
 
 
 public class XMLElementNode extends XMLDocumentNode {

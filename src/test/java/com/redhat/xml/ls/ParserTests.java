@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import com.redhat.xml.ls.parser.XMLNode;
+import com.redhat.xml.ls.parser.XMLNodes.XMLNode;
 import com.redhat.xml.ls.parser.XMLNodes.XMLDocumentNode;
 import com.redhat.xml.ls.parser.XMLNodes.XMLElementNode;
 import com.redhat.xml.ls.parser.XMLParser;
@@ -34,6 +34,22 @@ public class ParserTests {
     assertEquals(1, node.end.line);
     assertEquals(1, node.start.column);
     assertEquals(28, node.end.column);
+  }
+
+  @Test
+  public void testSingleElementTag() {
+    XMLDocumentNode node = (XMLDocumentNode) runParser("test", "<project />");
+    assertNotNull(node);
+    assertEquals(XMLNode.DOCUMENT_NODE, node.nodeType);
+    assertNotNull(node.children);
+    assertEquals(1, node.children.length);
+    assertEquals("project",node.children[0].name);
+    assertNotNull(node.start);
+    assertNotNull(node.end);
+    assertEquals(1, node.start.line);
+    assertEquals(1, node.end.line);
+    assertEquals(1, node.start.column);
+    assertEquals(12, node.end.column);
   }
 
   @Test
@@ -70,7 +86,7 @@ public class ParserTests {
 
   @Test
   public void testAttributeValues() {
-    XMLNode node = runParser("test", "<project a1=\"world\"></project>");
+    XMLNode node = runParser("test", "<project a1 = \"world\"></project>");
     assertNotNull(node);
     assertEquals(XMLNode.DOCUMENT_NODE, node.nodeType);
     assertNotNull(node.children);
@@ -115,5 +131,6 @@ public class ParserTests {
     assertEquals(XMLNode.XML_DECL, node.nodeType);
 
   }
+
 
 }

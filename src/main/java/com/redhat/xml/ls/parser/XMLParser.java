@@ -10,17 +10,19 @@ import java.util.logging.Logger;
 import com.redhat.xml.ls.parser.XMLNodes.XMLAttributeNode;
 import com.redhat.xml.ls.parser.XMLNodes.XMLDocumentNode;
 import com.redhat.xml.ls.parser.XMLNodes.XMLElementNode;
-import com.redhat.xml.ls.parser.XMLNodes.XMLDeclarationNode;
 import com.redhat.xml.ls.parser.XMLNodes.XMLNode;
 import com.redhat.xml.ls.services.ClientServices;
 import com.redhat.xml.ls.util.DiagnosticsHelper;
 
+import org.apache.xerces.impl.XMLDocumentScannerImpl;
+import org.apache.xerces.parsers.IntegratedParserConfiguration;
 import org.apache.xerces.parsers.XMLDocumentParser;
 import org.apache.xerces.xni.Augmentations;
 import org.apache.xerces.xni.NamespaceContext;
 import org.apache.xerces.xni.QName;
 import org.apache.xerces.xni.XMLAttributes;
 import org.apache.xerces.xni.XMLLocator;
+import org.apache.xerces.xni.XMLString;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLErrorHandler;
 import org.apache.xerces.xni.parser.XMLInputSource;
@@ -32,6 +34,8 @@ import org.eclipse.lsp4j.Diagnostic;
  */
 public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
 
+  
+
   private final static Logger LOG = Logger.getLogger(XMLParser.class.getName());
   private XMLLocator locator;
   private String uri;
@@ -42,9 +46,10 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
   private ClientServices client;
 
   public XMLParser(ClientServices services) {
+    super(new IntegratedParserConfiguration());
     this.client = services;
   }
-
+  
   @Override
   public void startDocument(XMLLocator locator, String encoding, NamespaceContext namespaceContext, Augmentations augs)
       throws XNIException {
@@ -66,6 +71,7 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
 
   @Override
   public void startElement(QName element, XMLAttributes attributes, Augmentations augs) throws XNIException {
+    
     XMLNode e = new XMLElementNode(XMLNode.ELEMENT_NODE);
     e.start = new Position(this.locator.getLineNumber(), this.locator.getColumnNumber());
     e.name = element.localpart;
@@ -74,6 +80,10 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
     pushCurrent(e);
 
     XMLNode[] attrList = new XMLNode[attributes.getLength()];
+
+    // char[] xx = this.fDocumentSource.fTempString.ch;
+
+    // System.out.println(xx[2]);
     for (int attrIndex = 0; attrIndex < attributes.getLength(); attrIndex++) {
       String attrName = attributes.getQName(attrIndex);
       String attrValue = attributes.getValue(attrIndex);
@@ -81,6 +91,7 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
       XMLAttributeNode attrNode = new XMLAttributeNode(XMLNode.ATTRIBUTE_NODE, attrValue);
       attrNode.name = attrName;
       attrNode.start = new Position(this.locator.getLineNumber(), this.locator.getColumnNumber());
+      System.out.println("THIS IS THE THING: " + this.locator.getCharacterOffset());
       addToCurrent(attrNode);
       // TODO: we need to determine the end position
 
@@ -91,6 +102,15 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
     System.out.println("hi");
   }
 
+  @Override
+  public void comment(XMLString text, Augmentations augs) throws XNIException {
+    super.comment(text, augs);
+  }
+
+  @Override
+  public void characters(XMLString text, Augmentations augs) throws XNIException {
+    XMLString t = text;
+  }
   /*
     To be implemented after DTD's are considered
   */
@@ -171,6 +191,8 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
     XMLInputSource source = new XMLInputSource(null, null, null);
     source.setCharacterStream(new StringReader(content));
     try {
+      // String x[] = new String[]{"http://apache.org/xml/properties/dom/current-element-node"};
+      // super.fConfiguration.addRecognizedProperties(x);
       super.parse(source);
     } catch (XMLParseException e) {
       diagnostics.add(DiagnosticsHelper.fatalErrorToDiagnostic(e));
