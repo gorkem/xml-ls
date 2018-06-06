@@ -18,7 +18,6 @@
 
 package com.redhat.xml.ls.parser.xerces;
 
-import org.apache.xerces.impl.XMLDocumentScannerImpl;
 import org.apache.xerces.impl.XMLNSDocumentScannerImpl;
 import org.apache.xerces.impl.dtd.XMLDTDValidator;
 import org.apache.xerces.impl.dtd.XMLNSDTDValidator;

@@ -145,6 +145,7 @@ public class XMLAttributesImplMod implements XMLAttributes {
     @Override
     public int addAttribute(QName attrName, String attrType, String attrValue) {
         return 0;
+
     }
 
     /**

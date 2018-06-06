@@ -6,6 +6,7 @@ import org.apache.xerces.xni.parser.XMLConfigurationException;
 
 /**
  * XMLScannerMod
+ * 
  */
 public class XMLScannerMod extends XMLScanner {
 
