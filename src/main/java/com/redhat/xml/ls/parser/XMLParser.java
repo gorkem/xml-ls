@@ -12,6 +12,7 @@ import com.redhat.xml.ls.parser.XMLNodes.XMLDocumentNode;
 import com.redhat.xml.ls.parser.XMLNodes.XMLElementNode;
 import com.redhat.xml.ls.parser.XMLNodes.XMLNode;
 import com.redhat.xml.ls.parser.xerces.IntegratedParserConfigurationMod;
+import com.redhat.xml.ls.parser.xerces.XMLAttributesImplMod;
 import com.redhat.xml.ls.services.ClientServices;
 import com.redhat.xml.ls.util.DiagnosticsHelper;
 
@@ -45,8 +46,10 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
   private ClientServices client;
 
   public XMLParser(ClientServices services) {
+
     super(new IntegratedParserConfigurationMod());
     this.client = services;
+
   }
 
   @Override
@@ -89,8 +92,13 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
 
       XMLAttributeNode attrNode = new XMLAttributeNode(XMLNode.ATTRIBUTE_NODE, attrValue);
       attrNode.name = attrName;
-      attrNode.start = new Position(this.locator.getLineNumber(), this.locator.getColumnNumber());
-      System.out.println("THIS IS THE THING: " + this.locator.getCharacterOffset());
+
+      Position namePosition = ((XMLAttributesImplMod) attributes).getStartPosition(attrIndex);
+      Position valuePosition = ((XMLAttributesImplMod) attributes).getEndPosition(attrIndex);
+      attrNode.start = namePosition;
+      attrNode.end = valuePosition;
+      // attrNode.start = new Position(, this.locator.getColumnNumber());
+
       addToCurrent(attrNode);
       // TODO: we need to determine the end position
 
@@ -108,8 +116,9 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
 
   @Override
   public void characters(XMLString text, Augmentations augs) throws XNIException {
-    XMLString t = text;
+    System.out.println(text);
   }
+
   /*
    * To be implemented after DTD's are considered
    */

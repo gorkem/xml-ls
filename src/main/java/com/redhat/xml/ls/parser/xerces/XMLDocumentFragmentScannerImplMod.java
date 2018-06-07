@@ -915,7 +915,7 @@ public class XMLDocumentFragmentScannerImplMod extends XMLScannerMod
         if (DEBUG_CONTENT_SCANNING)
             System.out.println(">>> scanAttribute()");
 
-        Position namePosition = new Position(fEntityScanner.getLineNumber(), fEntityScanner.getColumnNumber());
+        Position startPosition = new Position(fEntityScanner.getLineNumber(), fEntityScanner.getColumnNumber());
         // name
         if (fNamespaces) {
             fEntityScanner.scanQName(fAttributeQName);
@@ -933,11 +933,11 @@ public class XMLDocumentFragmentScannerImplMod extends XMLScannerMod
         }
         fEntityScanner.skipSpaces();
 
-        Position valuePosition = new Position(fEntityScanner.getLineNumber(), fEntityScanner.getColumnNumber());
         // content
         int oldLen = attributes.getLength();
-        int attrIndex = ((XMLAttributesImplMod) attributes).addAttribute(fAttributeQName, XMLSymbols.fCDATASymbol, null,
-                namePosition, valuePosition);
+        int attrIndex = ((XMLAttributesImplMod) attributes).addAttribute(fAttributeQName, XMLSymbols.fCDATASymbol,
+                null);
+        ((XMLAttributesImplMod) attributes).setStartPosition(attrIndex, startPosition);
 
         // WFC: Unique Att Spec
         if (oldLen == attributes.getLength()) {
@@ -948,6 +948,9 @@ public class XMLDocumentFragmentScannerImplMod extends XMLScannerMod
         // value are the same
         boolean isSameNormalizedAttr = scanAttributeValue(fTempString, fTempString2, fAttributeQName.rawname,
                 fIsEntityDeclaredVC, fCurrentElement.rawname);
+
+        Position endPosition = new Position(fEntityScanner.getLineNumber(), fEntityScanner.getColumnNumber() - 1);
+        ((XMLAttributesImplMod) attributes).setEndPosition(attrIndex, endPosition);
 
         attributes.setValue(attrIndex, fTempString.toString());
         // If the non-normalized and normalized value are the same, avoid creating a new

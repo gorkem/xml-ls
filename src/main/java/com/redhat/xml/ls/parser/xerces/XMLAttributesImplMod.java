@@ -142,12 +142,6 @@ public class XMLAttributesImplMod implements XMLAttributes {
     // XMLAttributes methods
     //
 
-    @Override
-    public int addAttribute(QName attrName, String attrType, String attrValue) {
-        return 0;
-
-    }
-
     /**
      * Adds an attribute. The attribute's non-normalized value of the attribute will
      * have the same value as the attribute value until set using the
@@ -173,8 +167,8 @@ public class XMLAttributesImplMod implements XMLAttributes {
      * @see #setNonNormalizedValue
      * @see #setSpecified
      */
-    public int addAttribute(QName name, String type, String value, Position namePosition, Position valuePosition) {
-        System.out.println("HELLOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+    public int addAttribute(QName name, String type, String value) {
+
         int index;
         if (fLength < SIZE_LIMIT) {
             index = name.uri != null && name.uri.length() != 0 ? getIndexFast(name.uri, name.localpart)
@@ -267,9 +261,6 @@ public class XMLAttributesImplMod implements XMLAttributes {
         attribute.value = value;
         attribute.nonNormalizedValue = value;
         attribute.specified = false;
-
-        attribute.namePosition = namePosition;
-        attribute.valuePosition = valuePosition;
 
         // clear augmentations
         attribute.augs.removeAllItems();
@@ -718,6 +709,34 @@ public class XMLAttributesImplMod implements XMLAttributes {
     }
 
     /**
+     * Nikolas Implemented
+     * 
+     * 
+     * 
+     */
+    public Position getStartPosition(int attributeIndex) {
+        return fAttributes[attributeIndex].startPosition;
+    }
+
+    /**
+     * Nikolas Implemented
+     * 
+     * 
+     * 
+     */
+    public Position getEndPosition(int attributeIndex) {
+        return fAttributes[attributeIndex].endPosition;
+    }
+
+    public void setStartPosition(int attributeIndex, Position startPosition) {
+        fAttributes[attributeIndex].startPosition = startPosition;
+    }
+
+    public void setEndPosition(int attributeIndex, Position endPosition) {
+        fAttributes[attributeIndex].endPosition = endPosition;
+    }
+
+    /**
      * Sets the augmentations of the attribute at the specified index.
      * 
      * @param attrIndex The attribute index.
@@ -1038,8 +1057,8 @@ public class XMLAttributesImplMod implements XMLAttributes {
         public Attribute next;
 
         // Newly added variables
-        public Position namePosition;
-        public Position valuePosition;
+        public Position startPosition;
+        public Position endPosition;
 
     } // class Attribute
 
