@@ -22,7 +22,7 @@ import java.io.EOFException;
 import java.io.IOException;
 
 import org.apache.xerces.impl.Constants;
-
+//
 import org.apache.xerces.impl.XMLErrorReporter;
 import org.apache.xerces.impl.dtd.XMLDTDDescription;
 import org.apache.xerces.impl.io.MalformedByteSequenceException;

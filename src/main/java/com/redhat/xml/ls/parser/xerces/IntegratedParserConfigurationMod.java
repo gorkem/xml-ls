@@ -69,7 +69,7 @@ import org.apache.xerces.xni.parser.XMLDocumentScanner;
  * @version $Id: IntegratedParserConfiguration.java 447239 2006-09-18 05:08:26Z
  *          mrglavas $
  */
-public class IntegratedParserConfigurationMod extends StandardParserConfiguration {
+public class IntegratedParserConfigurationMod extends StandardParserConfigurationMod {
 
     //
     // REVISIT: should this configuration depend on the others
@@ -77,7 +77,7 @@ public class IntegratedParserConfigurationMod extends StandardParserConfiguratio
     //
 
     /** Document scanner that does namespace binding. */
-    protected XMLNSDocumentScannerImpl fNamespaceScanner;
+    protected XMLNSDocumentScannerImplMod fNamespaceScanner;
 
     /** Default Xerces implementation of scanner */
     protected XMLDocumentScannerImplMod fNonNSScanner;
@@ -226,7 +226,7 @@ public class IntegratedParserConfigurationMod extends StandardParserConfiguratio
      * Create a document scanner: this scanner performs namespace binding
      */
     protected XMLDocumentScanner createDocumentScanner() {
-        fNamespaceScanner = new XMLNSDocumentScannerImpl();
+        fNamespaceScanner = new XMLNSDocumentScannerImplMod();
         return fNamespaceScanner;
     } // createDocumentScanner():XMLDocumentScanner
 

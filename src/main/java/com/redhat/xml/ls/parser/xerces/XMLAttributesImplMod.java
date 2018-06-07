@@ -174,7 +174,7 @@ public class XMLAttributesImplMod implements XMLAttributes {
      * @see #setSpecified
      */
     public int addAttribute(QName name, String type, String value, Position namePosition, Position valuePosition) {
-
+        System.out.println("HELLOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
         int index;
         if (fLength < SIZE_LIMIT) {
             index = name.uri != null && name.uri.length() != 0 ? getIndexFast(name.uri, name.localpart)

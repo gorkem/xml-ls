@@ -98,7 +98,7 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
     }
 
     this.current.children = attrList;
-    System.out.println("hi");
+
   }
 
   @Override
