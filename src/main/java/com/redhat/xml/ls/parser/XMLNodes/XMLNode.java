@@ -1,6 +1,7 @@
 package com.redhat.xml.ls.parser.XMLNodes;
 
 import com.redhat.xml.ls.parser.Position;
+
 /**
  * XMLNode
  */
@@ -69,10 +70,4 @@ public class XMLNode {
     this.nodeType = nodeType;
   }
 
-  
-
 }
-
-
-
-

@@ -8,16 +8,16 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.redhat.xml.ls.parser.XMLNodes.XMLAttributeNode;
+import com.redhat.xml.ls.parser.XMLNodes.XMLContentNode;
 import com.redhat.xml.ls.parser.XMLNodes.XMLDocumentNode;
 import com.redhat.xml.ls.parser.XMLNodes.XMLElementNode;
 import com.redhat.xml.ls.parser.XMLNodes.XMLNode;
+import com.redhat.xml.ls.parser.xerces.ContentAug;
 import com.redhat.xml.ls.parser.xerces.IntegratedParserConfigurationMod;
 import com.redhat.xml.ls.parser.xerces.XMLAttributesImplMod;
 import com.redhat.xml.ls.services.ClientServices;
 import com.redhat.xml.ls.util.DiagnosticsHelper;
 
-import org.apache.xerces.impl.XMLDocumentScannerImpl;
-import org.apache.xerces.parsers.IntegratedParserConfiguration;
 import org.apache.xerces.parsers.XMLDocumentParser;
 import org.apache.xerces.xni.Augmentations;
 import org.apache.xerces.xni.NamespaceContext;
@@ -90,8 +90,9 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
       String attrName = attributes.getQName(attrIndex);
       String attrValue = attributes.getValue(attrIndex);
 
-      XMLAttributeNode attrNode = new XMLAttributeNode(XMLNode.ATTRIBUTE_NODE, attrValue);
+      XMLAttributeNode attrNode = new XMLAttributeNode();
       attrNode.name = attrName;
+      attrNode.value = attrValue;
 
       Position namePosition = ((XMLAttributesImplMod) attributes).getStartPosition(attrIndex);
       Position valuePosition = ((XMLAttributesImplMod) attributes).getEndPosition(attrIndex);
@@ -116,7 +117,8 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
 
   @Override
   public void characters(XMLString text, Augmentations augs) throws XNIException {
-    System.out.println(text);
+    XMLContentNode x = ((ContentAug) augs).node;
+    addToCurrent(x);
   }
 
   /*

@@ -28,7 +28,6 @@ import org.apache.xerces.impl.ExternalSubsetResolver;
 import org.apache.xerces.impl.XMLEntityHandler;
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.impl.XMLErrorReporter;
-import org.apache.xerces.impl.XMLScanner;
 import org.apache.xerces.impl.io.MalformedByteSequenceException;
 import org.apache.xerces.impl.msg.XMLMessageFormatter;
 import org.apache.xerces.util.AugmentationsImpl;
@@ -972,6 +971,10 @@ public class XMLDocumentFragmentScannerImplMod extends XMLScannerMod
     protected int scanContent() throws IOException, XNIException {
 
         XMLString content = fTempString;
+        ContentAug augmentation = new ContentAug();
+
+        augmentation.node.start = new Position(fEntityScanner.getLineNumber(), fEntityScanner.getColumnNumber());
+
         int c = fEntityScanner.scanContent(content);
         if (c == '\r') {
             // happens when there is the character reference &#13;
@@ -982,8 +985,11 @@ public class XMLDocumentFragmentScannerImplMod extends XMLScannerMod
             content = fStringBuffer;
             c = -1;
         }
+
+        augmentation.node.end = new Position(fEntityScanner.getLineNumber(), fEntityScanner.getColumnNumber());
+
         if (fDocumentHandler != null && content.length > 0) {
-            fDocumentHandler.characters(content, null);
+            fDocumentHandler.characters(content, augmentation);
         }
 
         if (c == ']' && fTempString.length == 0) {

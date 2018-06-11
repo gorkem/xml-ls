@@ -163,11 +163,52 @@ public class ParserTests {
    /* @formatter:off */
    XMLNode node = runParser("test", "<project att=\"k\">Hey Dude</project>");
    /* @formatter:on */
+    assertEquals(18, 12);
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void testMultipleAttributes() {
+    XMLNode node = runParser("test", "<project att=\"k\" att2=\"yo\" att3=\"hi\">Hey Dude</project>");
+    assertNotNull(node);
+    assertEquals(XMLNode.DOCUMENT_NODE, node.nodeType);
+    assertNotNull(node.children);
+    assertEquals(1, node.children.length);
+    assertEquals(3, node.children[0].children.length);
+
+    assertEquals("att", node.children[0].children[0].name);
+    assertEquals("k", node.children[0].children[0].value);
+
+    assertEquals("att2", node.children[0].children[1].name);
+    assertEquals("yo", node.children[0].children[1].value);
+
+    assertEquals("att3", node.children[0].children[2].name);
+    assertEquals("hi", node.children[0].children[2].value);
 
   }
 
   /**
    * 
    */
+  @Test
+  public void testMultipleAttributesPositions() {
+    XMLNode node = runParser("test", "<project att=\"k\" att2=\"yo\" att3=\"hi\">Hey Dude</project>");
+    assertNotNull(node);
+    assertEquals(XMLNode.DOCUMENT_NODE, node.nodeType);
+    assertNotNull(node.children);
+    assertEquals(1, node.children.length);
+    assertEquals(3, node.children[0].children.length);
 
+    assertEquals(10, node.children[0].children[0].start.column);
+    assertEquals(16, node.children[0].children[0].end.column);
+
+    assertEquals(18, node.children[0].children[1].start.column);
+    assertEquals(26, node.children[0].children[1].end.column);
+
+    assertEquals(28, node.children[0].children[2].start.column);
+    assertEquals(36, node.children[0].children[2].end.column);
+
+  }
 }
