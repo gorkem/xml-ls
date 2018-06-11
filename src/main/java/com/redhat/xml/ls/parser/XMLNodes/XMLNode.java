@@ -5,7 +5,7 @@ import com.redhat.xml.ls.parser.Position;
 /**
  * XMLNode
  */
-public class XMLNode {
+public class XMLNode implements Visitable {
   // NodeType
   /**
    * The node is an <code>Element</code>.
@@ -68,6 +68,11 @@ public class XMLNode {
 
   public XMLNode(short nodeType) {
     this.nodeType = nodeType;
+  }
+
+  @Override
+  public void accept(XMLNodeVisitor node) {
+    node.visit(this);
   }
 
 }

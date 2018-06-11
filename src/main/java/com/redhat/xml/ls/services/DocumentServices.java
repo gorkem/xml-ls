@@ -7,7 +7,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 import com.redhat.xml.ls.XMLLanguageServer;
+import com.redhat.xml.ls.parser.XMLNodes.Visitable;
 import com.redhat.xml.ls.parser.XMLNodes.XMLNode;
+import com.redhat.xml.ls.parser.XMLNodes.XMLNodeVisitor;
 import com.redhat.xml.ls.parser.XMLParser;
 
 import org.eclipse.lsp4j.CodeActionParams;
@@ -80,25 +82,10 @@ public class DocumentServices implements TextDocumentService {
 
   // Shows all other same named of highlighted
   public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(TextDocumentPositionParams position) {
-
-    TextDocumentItem textDocument = cache.get(position.getTextDocument().getUri());
-    XMLNode currentNode = parseDocument(position.getUri(), textDocument.getText());
-
-    //XMLNode closestNode = Util.FindClosestNode(currentNode, position);
-
-    Position p = new Position();
-  
-
-    /*
-     * - Get closest node to position. At position collect string info
-     * 
-     * - consider tag name, attributes and value, caret symbol, element content
-     * 
-     * - Watch for empty document
-     * 
-     * - Test 3
-     */
-
+    TextDocumentItem textDoc = cache.get(position.getTextDocument().getUri());
+    XMLNode parseDocument = parseDocument(position.getTextDocument().getUri(), textDoc.getText());
+    Visitable c = new DocumentHighlightingService(parseDocument);
+    c.accept(new DocumentHighlightingVisitor());
     return null;
   }
 

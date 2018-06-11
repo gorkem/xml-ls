@@ -1,14 +1,9 @@
 package com.redhat.xml.ls.parser.XMLNodes;
 
-import com.redhat.xml.ls.parser.XMLNodes.XMLNode;
-
-
-public class XMLDocumentNode extends XMLNode {
-
-  public XMLNode[] elementChildren;
+public class XMLDocumentNode extends XMLNode implements Visitable {
   
   public XMLDocumentNode(short nodeType) {
     super(nodeType);
-    
   }
+
 }
