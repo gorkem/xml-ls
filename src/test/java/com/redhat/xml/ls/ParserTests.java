@@ -1,20 +1,18 @@
-package test.java.com.redhat.xml.ls;
+package com.redhat.xml.ls;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import com.redhat.xml.ls.parser.XMLNodes.XMLNode;
-import com.redhat.xml.ls.parser.XMLNodes.XMLDocumentNode;
-import com.redhat.xml.ls.parser.XMLNodes.XMLElementNode;
 import com.redhat.xml.ls.parser.XMLParser;
 import com.redhat.xml.ls.parser.XMLNodes.XMLAttributeNode;
+import com.redhat.xml.ls.parser.XMLNodes.XMLDocumentNode;
+import com.redhat.xml.ls.parser.XMLNodes.XMLNode;
 
 import org.junit.jupiter.api.Test;
 
 /**
- */
+*/
 public class ParserTests {
 
   private XMLNode runParser(String uri, String content) {
@@ -32,10 +30,11 @@ public class ParserTests {
     assertEquals(1, node.children.length);
     assertNotNull(node.start);
     assertNotNull(node.end);
-    assertEquals(1, node.start.line);
-    assertEquals(1, node.end.line);
-    assertEquals(1, node.start.column);
-    assertEquals(27, node.end.column);
+    assertEquals(1, node.start.getLine());
+    assertEquals(1, node.end.getLine());
+    assertEquals(1, node.start.getCharacter());
+    assertEquals(27, node.end.getCharacter());
+    assertEquals(1, node.children[0].start.getCharacter());
   }
 
   @Test
@@ -48,10 +47,40 @@ public class ParserTests {
     assertEquals("project", node.children[0].name);
     assertNotNull(node.start);
     assertNotNull(node.end);
-    assertEquals(1, node.start.line);
-    assertEquals(1, node.end.line);
-    assertEquals(1, node.start.column);
-    assertEquals(12, node.end.column);
+    assertEquals(1, node.start.getLine());
+    assertEquals(1, node.end.getLine());
+    assertEquals(1, node.start.getCharacter());
+    assertEquals(12, node.end.getCharacter());
+  }
+
+  @Test
+  public void testNestedElementTags() {
+    XMLDocumentNode node = (XMLDocumentNode) runParser("test", "<project1><project2></project2></project1>");
+    assertNotNull(node);
+    assertEquals(XMLNode.DOCUMENT_NODE, node.nodeType);
+    assertNotNull(node.children);
+    assertEquals(1, node.children.length);
+    assertEquals("project1", node.children[0].name);
+    assertEquals("project2", node.children[0].children[0].name);
+    
+  }
+
+  @Test
+  public void testElementTagPositions() {
+    XMLDocumentNode node = (XMLDocumentNode) runParser("test", "<project1><project2></project2></project1>");
+    assertNotNull(node);
+    assertEquals(XMLNode.DOCUMENT_NODE, node.nodeType);
+    assertNotNull(node.children);
+    assertEquals(1, node.children.length);
+    
+    assertEquals(1, node.children[0].start.getCharacter());
+    assertEquals(1, node.children[0].start.getLine());
+    assertEquals(43, node.children[0].end.getCharacter());
+
+    assertEquals(11, node.children[0].children[0].start.getCharacter());
+    assertEquals(1, node.children[0].children[0].start.getLine());
+    assertEquals(32, node.children[0].children[0].end.getCharacter());
+    
   }
 
   @Test
@@ -59,17 +88,14 @@ public class ParserTests {
     String content = "<project attribute=\"hello world\"></project>";
     XMLNode node = runParser("test", content);
 
-    assertNotNull(node);
-    assertEquals(XMLNode.DOCUMENT_NODE, node.nodeType);
-    assertNotNull(node.children);
+    
+    
     assertEquals(1, node.children.length);
     assertEquals(1, node.children[0].children.length);
-    assertNotNull(node.start);
-    assertNotNull(node.end);
-    assertEquals(1, node.start.line);
-    assertEquals(1, node.end.line);
-    assertEquals(1, node.start.column);
-    assertEquals(44, node.end.column);
+    assertEquals(1, node.start.getLine());
+    assertEquals(1, node.end.getLine());
+    assertEquals(1, node.children[0].start.getCharacter());
+    assertEquals(44, node.children[0].end.getCharacter());
   }
 
   @Test
@@ -82,9 +108,9 @@ public class ParserTests {
     assertEquals(3, node.children[0].children.length);
     assertNotNull(node.start);
     assertNotNull(node.end);
-    assertEquals(1, node.start.line);
-    assertEquals(1, node.end.line);
-    assertEquals(1, node.start.column);
+    assertEquals(1, node.start.getLine());
+    assertEquals(1, node.end.getLine());
+    assertEquals(1, node.start.getCharacter());
 
   }
 
@@ -99,8 +125,8 @@ public class ParserTests {
     assertEquals("a1", node.children[0].children[0].name);
     assertEquals("project", node.children[0].children[0].parent.name);
     assertEquals("world", node.children[0].children[0].value);
-    assertEquals(10, ((XMLAttributeNode) node.children[0].children[0]).start.column);
-    assertEquals(19, ((XMLAttributeNode) node.children[0].children[0]).end.column);
+    assertEquals(10, ((XMLAttributeNode) node.children[0].children[0]).start.getCharacter());
+    assertEquals(20, ((XMLAttributeNode) node.children[0].children[0]).end.getCharacter());
     assertNotNull(node.start);
     assertNotNull(node.end);
     assertNotNull(node.children[0].children[0].parent);
@@ -109,7 +135,7 @@ public class ParserTests {
 
   @Test
   public void testAttributePositionSpaces() {
-    XMLNode node = runParser("test", "<project a1   =   \"world\"></project>");
+    XMLNode node = runParser("test", "<project a1 = \"world\"></project>");
     assertNotNull(node);
     assertEquals(XMLNode.DOCUMENT_NODE, node.nodeType);
     assertNotNull(node.children);
@@ -118,8 +144,8 @@ public class ParserTests {
     assertEquals("a1", node.children[0].children[0].name);
     assertEquals("project", node.children[0].children[0].parent.name);
     assertEquals("world", node.children[0].children[0].value);
-    assertEquals(10, ((XMLAttributeNode) node.children[0].children[0]).start.column);
-    assertEquals(25, ((XMLAttributeNode) node.children[0].children[0]).end.column);
+    assertEquals(10, ((XMLAttributeNode) node.children[0].children[0]).start.getCharacter());
+    assertEquals(22, ((XMLAttributeNode) node.children[0].children[0]).end.getCharacter());
     assertNotNull(node.start);
     assertNotNull(node.end);
     assertNotNull(node.children[0].children[0].parent);
@@ -138,9 +164,9 @@ public class ParserTests {
     assertNotNull(node);
     assertEquals(XMLNode.ELEMENT_NODE, node.nodeType);
     assertEquals("project", node.name);
-    assertEquals(1, node.start.line);
-    assertEquals(3, node.end.line);
-    assertEquals(11, node.end.column);
+    assertEquals(1, node.start.getLine());
+    assertEquals(3, node.end.getLine());
+    assertEquals(11, node.end.getCharacter());
   }
 
   @Test
@@ -163,12 +189,12 @@ public class ParserTests {
    /* @formatter:off */
    XMLNode node = runParser("test", "<project att=\"k\">Hey Dude</project>");
    /* @formatter:on */
-    assertEquals(18, 12);
+
   }
 
   /**
-   * 
-   */
+  *
+  */
   @Test
   public void testMultipleAttributes() {
     XMLNode node = runParser("test", "<project att=\"k\" att2=\"yo\" att3=\"hi\">Hey Dude</project>");
@@ -176,6 +202,8 @@ public class ParserTests {
     assertEquals(XMLNode.DOCUMENT_NODE, node.nodeType);
     assertNotNull(node.children);
     assertEquals(1, node.children.length);
+    
+    //Should be 4 after contentNodes are implemented
     assertEquals(3, node.children[0].children.length);
 
     assertEquals("att", node.children[0].children[0].name);
@@ -190,8 +218,8 @@ public class ParserTests {
   }
 
   /**
-   * 
-   */
+  *
+  */
   @Test
   public void testMultipleAttributesPositions() {
     XMLNode node = runParser("test", "<project att=\"k\" att2=\"yo\" att3=\"hi\">Hey Dude</project>");
@@ -201,14 +229,14 @@ public class ParserTests {
     assertEquals(1, node.children.length);
     assertEquals(3, node.children[0].children.length);
 
-    assertEquals(10, node.children[0].children[0].start.column);
-    assertEquals(16, node.children[0].children[0].end.column);
+    assertEquals(10, node.children[0].children[0].start.getCharacter());
+    assertEquals(17, node.children[0].children[0].end.getCharacter());
 
-    assertEquals(18, node.children[0].children[1].start.column);
-    assertEquals(26, node.children[0].children[1].end.column);
+    assertEquals(18, node.children[0].children[1].start.getCharacter());
+    assertEquals(27, node.children[0].children[1].end.getCharacter());
 
-    assertEquals(28, node.children[0].children[2].start.column);
-    assertEquals(36, node.children[0].children[2].end.column);
+    assertEquals(28, node.children[0].children[2].start.getCharacter());
+    assertEquals(37, node.children[0].children[2].end.getCharacter());
 
   }
 }

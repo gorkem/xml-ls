@@ -1,6 +1,8 @@
 package com.redhat.xml.ls.parser.XMLNodes;
 
-import com.redhat.xml.ls.parser.Position;
+import com.redhat.xml.ls.services.visitors.XMLNodeVisitor;
+
+import org.eclipse.lsp4j.Position;
 
 /**
  * XMLNode
@@ -69,8 +71,14 @@ public class XMLNode {
   public XMLNode(short nodeType) {
     this.nodeType = nodeType;
   }
-  public void accept(XMLNodeVisitor node) {
-    node.visit(this);
+
+  public void accept(XMLNodeVisitor visitor){
+    visitor.visit(this);
+  }
+
+  // Doesnt work for XMLDocumentNode and First Child if child == (1,1)
+  public boolean equals(XMLNode node) {
+    return start.equals(node.start);
   }
 
 }

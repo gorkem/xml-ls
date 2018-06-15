@@ -17,7 +17,7 @@
 
 package com.redhat.xml.ls.parser.xerces;
 
-import com.redhat.xml.ls.parser.Position;
+import org.eclipse.lsp4j.Position;
 
 import org.apache.xerces.util.AugmentationsImpl;
 import org.apache.xerces.xni.Augmentations;

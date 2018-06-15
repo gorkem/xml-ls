@@ -8,11 +8,10 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.redhat.xml.ls.parser.XMLNodes.XMLAttributeNode;
-import com.redhat.xml.ls.parser.XMLNodes.XMLContentNode;
 import com.redhat.xml.ls.parser.XMLNodes.XMLDocumentNode;
 import com.redhat.xml.ls.parser.XMLNodes.XMLElementNode;
 import com.redhat.xml.ls.parser.XMLNodes.XMLNode;
-import com.redhat.xml.ls.parser.xerces.ContentAug;
+import com.redhat.xml.ls.parser.xerces.ElementTagAug;
 import com.redhat.xml.ls.parser.xerces.IntegratedParserConfigurationMod;
 import com.redhat.xml.ls.parser.xerces.XMLAttributesImplMod;
 import com.redhat.xml.ls.services.ClientServices;
@@ -30,6 +29,7 @@ import org.apache.xerces.xni.parser.XMLErrorHandler;
 import org.apache.xerces.xni.parser.XMLInputSource;
 import org.apache.xerces.xni.parser.XMLParseException;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.Position;
 
 /**
  * XMLParser
@@ -57,7 +57,7 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
       throws XNIException {
     this.locator = locator;
     this.root = new XMLDocumentNode(XMLNode.DOCUMENT_NODE);
-    this.root.start = new Position(this.locator.getLineNumber(), this.locator.getColumnNumber());
+    this.root.start = convertToZeroBased(this.locator.getLineNumber(), this.locator.getColumnNumber());
     pushCurrent(this.root);
   }
 
@@ -65,7 +65,7 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
   public void xmlDecl(String version, String encoding, String standalone, Augmentations augs) throws XNIException {
 
     XMLNode decl = new XMLNode(XMLNode.XML_DECL);
-    decl.start = new Position(this.locator.getLineNumber(), this.locator.getColumnNumber());
+    decl.start = convertToZeroBased(this.locator.getLineNumber(), this.locator.getColumnNumber());
     addToCurrent(decl);
     // Do not push to current as xmldecl can not have child
     // TODO: we need to determine the end position
@@ -73,9 +73,9 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
 
   @Override
   public void startElement(QName element, XMLAttributes attributes, Augmentations augs) throws XNIException {
-
+    
     XMLNode e = new XMLElementNode(XMLNode.ELEMENT_NODE);
-    e.start = new Position(this.locator.getLineNumber(), this.locator.getColumnNumber());
+    e.start = convertToZeroBased(((ElementTagAug)augs).startPos.getLine(), ((ElementTagAug)augs).startPos.getCharacter());
     e.name = element.localpart;
 
     addToCurrent(e);
@@ -83,10 +83,11 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
 
     XMLNode[] attrList = new XMLNode[attributes.getLength()];
 
-    // char[] xx = this.fDocumentSource.fTempString.ch;
-
-    // System.out.println(xx[2]);
     for (int attrIndex = 0; attrIndex < attributes.getLength(); attrIndex++) {
+      if (attributes.getQName(attrIndex) == null) {
+        break;
+      }
+
       String attrName = attributes.getQName(attrIndex);
       String attrValue = attributes.getValue(attrIndex);
 
@@ -94,8 +95,9 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
       attrNode.name = attrName;
       attrNode.value = attrValue;
 
-      Position namePosition = ((XMLAttributesImplMod) attributes).getStartPosition(attrIndex);
-      Position valuePosition = ((XMLAttributesImplMod) attributes).getEndPosition(attrIndex);
+      Position namePosition = convertToZeroBased(((XMLAttributesImplMod) attributes).getStartPosition(attrIndex));
+      
+      Position valuePosition = convertToZeroBased(((XMLAttributesImplMod) attributes).getEndPosition(attrIndex));
       attrNode.start = namePosition;
       attrNode.end = valuePosition;
       // attrNode.start = new Position(, this.locator.getColumnNumber());
@@ -117,8 +119,12 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
 
   @Override
   public void characters(XMLString text, Augmentations augs) throws XNIException {
-    XMLContentNode x = ((ContentAug) augs).node;
-    addToCurrent(x);
+
+    // Gives garbage right now
+
+    // XMLContentNode x = ((ContentAug) augs).node;
+    // x.name = text.toString();
+    // addToCurrent(x);
   }
 
   /*
@@ -220,6 +226,14 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
 
   public XMLNode getRoot() {
     return this.root;
+  }
+
+  public Position convertToZeroBased(Position p){
+    return new Position(p.getLine() - 1, p.getCharacter() - 1);
+  }
+
+  public Position convertToZeroBased(int line, int character){
+    return new Position(line - 1, character - 1);
   }
 
 }

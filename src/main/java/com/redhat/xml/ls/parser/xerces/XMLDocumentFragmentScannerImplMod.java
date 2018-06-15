@@ -21,7 +21,7 @@ import java.io.CharConversionException;
 import java.io.EOFException;
 import java.io.IOException;
 
-import com.redhat.xml.ls.parser.Position;
+import org.eclipse.lsp4j.Position;
 
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.impl.ExternalSubsetResolver;
@@ -736,6 +736,8 @@ public class XMLDocumentFragmentScannerImplMod extends XMLScannerMod
         if (DEBUG_CONTENT_SCANNING)
             System.out.println(">>> scanStartElement()");
 
+        ElementTagAug aug = new ElementTagAug(new Position(fEntityScanner.getLineNumber(), fEntityScanner.getCharacterOffset()));
+
         // name
         if (fNamespaces) {
             fEntityScanner.scanQName(fElementQName);
@@ -796,7 +798,7 @@ public class XMLDocumentFragmentScannerImplMod extends XMLScannerMod
                 // pop the element off the stack..
                 fElementStack.popElement(fElementQName);
             } else {
-                fDocumentHandler.startElement(fElementQName, fAttributes, null);
+                fDocumentHandler.startElement(fElementQName, fAttributes, aug);
             }
         }
 
@@ -948,7 +950,7 @@ public class XMLDocumentFragmentScannerImplMod extends XMLScannerMod
         boolean isSameNormalizedAttr = scanAttributeValue(fTempString, fTempString2, fAttributeQName.rawname,
                 fIsEntityDeclaredVC, fCurrentElement.rawname);
 
-        Position endPosition = new Position(fEntityScanner.getLineNumber(), fEntityScanner.getColumnNumber() - 1);
+        Position endPosition = new Position(fEntityScanner.getLineNumber(), fEntityScanner.getColumnNumber());
         ((XMLAttributesImplMod) attributes).setEndPosition(attrIndex, endPosition);
 
         attributes.setValue(attrIndex, fTempString.toString());

@@ -32,7 +32,7 @@ public class XMLLanguageServer implements LanguageServer, LanguageClientAware {
     LOG.info("Initializing server");
     final ServerCapabilities $ = new ServerCapabilities();
     TextDocumentSyncOptions syncOptions = new TextDocumentSyncOptions();
-    syncOptions.setChange(TextDocumentSyncKind.None);
+    syncOptions.setChange(TextDocumentSyncKind.Full);
     syncOptions.setSave(new SaveOptions(true));
     syncOptions.setOpenClose(true);
     $.setTextDocumentSync(syncOptions);

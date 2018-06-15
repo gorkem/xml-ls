@@ -31,6 +31,7 @@ import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLComponentManager;
 import org.apache.xerces.xni.parser.XMLConfigurationException;
 import org.apache.xerces.xni.parser.XMLDocumentSource;
+import org.eclipse.lsp4j.Position;
 
 /**
  * The scanner acts as the source for the document information which is
@@ -128,6 +129,9 @@ public class XMLNSDocumentScannerImplMod extends XMLDocumentScannerImplMod {
     if (DEBUG_CONTENT_SCANNING)
       System.out.println(">>> scanStartElementNS()");
 
+
+    ElementTagAug aug = new ElementTagAug(new Position(fEntityScanner.getLineNumber(), fEntityScanner.getColumnNumber() - 1));
+    
     // Note: namespace processing is on by default
     fEntityScanner.scanQName(fElementQName);
     // REVISIT - [Q] Why do we need this temp variable? -- mrglavas
@@ -146,7 +150,7 @@ public class XMLNSDocumentScannerImplMod extends XMLDocumentScannerImplMod {
         }
       }
     }
-
+    
     // push element stack
     fCurrentElement = fElementStack.pushElement(fElementQName);
 
@@ -255,7 +259,7 @@ public class XMLNSDocumentScannerImplMod extends XMLDocumentScannerImplMod {
           reportFatalError("ElementEntityMismatch", new Object[] { fCurrentElement.rawname });
         }
 
-        fDocumentHandler.emptyElement(fElementQName, fAttributes, null);
+        fDocumentHandler.emptyElement(fElementQName, fAttributes, aug);
 
         if (fBindNamespaces) {
           fNamespaceContext.popContext();
@@ -263,7 +267,7 @@ public class XMLNSDocumentScannerImplMod extends XMLDocumentScannerImplMod {
         // pop the element off the stack..
         fElementStack.popElement(fElementQName);
       } else {
-        fDocumentHandler.startElement(fElementQName, fAttributes, null);
+        fDocumentHandler.startElement(fElementQName, fAttributes, aug);
       }
     }
 
