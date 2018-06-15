@@ -1,5 +1,6 @@
 package com.redhat.xml.ls.services;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -31,6 +32,7 @@ import org.eclipse.lsp4j.DocumentRangeFormattingParams;
 import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelp;
@@ -47,6 +49,7 @@ public class DocumentServices<IProgressMonitor> implements TextDocumentService {
 
   private XMLLanguageServer server;
   private HashMap<String, XMLNode> cache = new HashMap<>();
+  private XMLParser parser;
 
   private final static Logger LOG = Logger.getLogger(DocumentServices.class.getName());
 
@@ -96,10 +99,21 @@ public class DocumentServices<IProgressMonitor> implements TextDocumentService {
       return new CompletableFuture<>();
     }
     //((monitor) -> (List<DocumentHighlight>) Util.createServiceObjectListBFS(root, visitor));
-    List<DocumentHighlight> x = (List<DocumentHighlight>) Util.createServiceObjectListBFS(root, visitor);
+
+    List<DocumentHighlight> x = new ArrayList<>();
+
+    try {
+      x = (List<DocumentHighlight>) Util.createServiceObjectListBFS(root, visitor);
+    } catch (Exception e) {
+      parser.client.log(MessageType.Info, e.getMessage());
+      //getClientServices().log(MessageType.Error, e.getMessage());
+    }
+    
+    final List<DocumentHighlight> n = x;
+
     return CompletableFutures.computeAsync(cc -> 
     {
-      return x;//(List<DocumentHighlight>) Util.createServiceObjectListBFS(root, visitor);
+      return n;//(List<DocumentHighlight>) Util.createServiceObjectListBFS(root, visitor);
     });
     
 
@@ -170,7 +184,7 @@ public class DocumentServices<IProgressMonitor> implements TextDocumentService {
 
   private XMLNode parseDocument(String uri, String content) {
     CompletableFuture<XMLNode> z = CompletableFuture.supplyAsync(() -> {
-      XMLParser parser = new XMLParser(this.server.getClientServices());
+      parser = new XMLParser(this.server.getClientServices());
       parser.parse(uri, content);
       return parser.getRoot();
     });

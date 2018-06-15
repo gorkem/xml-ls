@@ -43,7 +43,7 @@ public class XMLParser extends XMLDocumentParser implements XMLErrorHandler {
   private XMLNode current;
 
   private final List<Diagnostic> diagnostics = new ArrayList<>();
-  private ClientServices client;
+  public ClientServices client;
 
   public XMLParser(ClientServices services) {
 
